@@ -1,0 +1,81 @@
+images:
+  api: isitfishy-api:dev
+  postgres: postgres:17-alpine
+  pullPolicy: IfNotPresent
+
+api:
+  replicas: 1
+  # How long the API waits for the scorer. Keep it above the scorer's slowest answer.
+  scorerTimeoutMs: 75000
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+    limits: { cpu: "1", memory: 512Mi }
+
+# The scorer is a separate service the API calls over HTTP (POST /v1/check, see
+# deploy/README.md). There is no default image: set scorer.image.repository on every install
+# and upgrade, or the chart refuses to render. Use ghcr.io/isitfishy/isitfishy-stub-scorer for
+# the stub scorer from tools/stub-scorer, or any other service that implements the contract.
+scorer:
+  image:
+    # Required, for example ghcr.io/isitfishy/isitfishy-stub-scorer.
+    repository: ""
+    # An empty tag falls back to the chart's appVersion, the tag each release publishes.
+    tag: ""
+    pullPolicy: IfNotPresent
+  # Port the scorer listens on. It must answer GET /healthz with 200 once it is ready.
+  port: 8000
+  # Numeric user and group the scorer runs as.
+  runAsUser: 65534
+  fsGroup: 65534
+  # Extra environment variables, as a Kubernetes EnvVar list (value or valueFrom).
+  env: []
+  # Extra envFrom sources (configMapRef / secretRef), passed through as they are.
+  envFrom: []
+  # Name of an existing secret whose keys all become environment variables. Optional.
+  existingSecret: ""
+  # Optional volume for the scorer, mounted at mountPath and kept across restarts.
+  persistence:
+    enabled: false
+    claimName: scorer-data
+    volumeName: data
+    mountPath: /data
+    size: 1Gi
+  # Passed through to the pod as they are.
+  initContainers: []
+  extraVolumes: []
+  extraVolumeMounts: []
+  resources:
+    requests: { cpu: 50m, memory: 64Mi }
+    limits: { cpu: "1", memory: 256Mi }
+
+admin:
+  # Secret with key "token" for the /v1/admin routes, created outside the chart (see
+  # deploy/README.md). Optional: without it the admin routes answer 503. Set to "" to leave
+  # the admin wiring out entirely.
+  tokenSecret: isitfishy-admin
+
+postgres:
+  size: 5Gi
+  database: isitfishy
+  user: isitfishy
+  # Secret with key "password", created outside the chart.
+  passwordSecret: isitfishy-postgres
+  resources:
+    requests: { cpu: 100m, memory: 256Mi }
+    limits: { cpu: "2", memory: 1Gi }
+
+# Daily pg_dump into its own volume. See deploy/README.md for restoring.
+backup:
+  enabled: true
+  schedule: "30 2 * * *"
+  # Dumps to keep, one per day.
+  keep: 7
+  size: 5Gi
+  resources:
+    requests: { cpu: 50m, memory: 64Mi }
+    limits: { cpu: "1", memory: 512Mi }
+
+ingress:
+  enabled: true
+  className: traefik
+  host: ""

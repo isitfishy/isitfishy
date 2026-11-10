@@ -1,0 +1,40 @@
+name: stub-scorer
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["tools/stub-scorer/**", ".github/workflows/stub-scorer.yml"]
+  pull_request:
+    paths: ["tools/stub-scorer/**", ".github/workflows/stub-scorer.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: [22, 26]
+    defaults:
+      run:
+        working-directory: tools/stub-scorer
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: ${{ matrix.node }}
+      - run: node --test
+
+  image:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: docker build -t stub-scorer tools/stub-scorer
+      - name: Smoke test
+        run: |
+          docker run -d --name stub -p 8000:8000 stub-scorer
+          for i in $(seq 15); do curl -sf localhost:8000/healthz && break; sleep 1; done
+          curl -sf localhost:8000/v1/check -H 'content-type: application/json' \
+            -d '{"input":"https://www.example.com"}' | grep -q '"verdict":"low"'

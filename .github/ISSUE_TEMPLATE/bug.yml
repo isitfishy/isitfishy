@@ -1,0 +1,46 @@
+name: Bug report
+description: The app, the API or the chart crashed, failed or behaved wrongly
+labels: [bug]
+body:
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - Mobile app
+        - API
+        - Helm chart or Docker Compose
+        - Docs
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: App version, release tag or commit
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you expected, and what happened instead
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Phone model and OS version, or Node, Docker, Kubernetes versions
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      render: text
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Before posting
+      options:
+        - label: I removed phone numbers, names, personal links and message text
+          required: true

@@ -1,0 +1,39 @@
+name: docs
+
+# Deploys the documentation site to GitHub Pages. The job runs only when the repository
+# variable DOCS_PUBLISH is "true", so a copy of the repository without Pages set up skips it.
+# One-time setup:
+#   Settings > Pages > Source: GitHub Actions
+#   gh variable set DOCS_PUBLISH --body true
+on:
+  push:
+    branches: [main]
+    paths: ["docs/**", "zensical.toml", "CHANGELOG.md", ".github/workflows/docs.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: vars.DOCS_PUBLISH == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v7
+      - run: uvx zensical@0.0.74 build --strict --clean
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+      - uses: actions/deploy-pages@v5
+        id: deployment

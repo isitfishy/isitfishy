@@ -1,0 +1,49 @@
+version: 2
+updates:
+  # The pnpm workspace: apps/* and packages/*. Only minor and patch updates arrive here;
+  # major versions (NestJS, Prisma, TypeScript, ESLint, Node...) are planned upgrades.
+  # Expo picks matching versions of React, React Native and native modules for each SDK, so
+  # those move with `expo install --fix` when the SDK is upgraded, not one by one.
+  - package-ecosystem: npm
+    directory: /
+    schedule: { interval: weekly }
+    open-pull-requests-limit: 10
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "expo"
+      - dependency-name: "expo-*"
+      - dependency-name: "@expo/*"
+      - dependency-name: "react"
+      - dependency-name: "react-dom"
+      - dependency-name: "react-native"
+      - dependency-name: "react-native-*"
+      - dependency-name: "@react-native/*"
+      - dependency-name: "@react-native-async-storage/*"
+      - dependency-name: "jest-expo"
+    groups:
+      nestjs:
+        patterns: ["@nestjs/*"]
+      prisma:
+        patterns: ["prisma", "@prisma/*"]
+      dev:
+        dependency-type: development
+      prod:
+        dependency-type: production
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly }
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: docker
+    directories: [/apps/api, /tools/stub-scorer]
+    schedule: { interval: weekly }
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+    groups:
+      images:
+        patterns: ["*"]

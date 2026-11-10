@@ -1,0 +1,28 @@
+appId: io.github.brkozer.isitfishy
+name: A known sample link is low risk
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: input
+- inputText: "https://www.example.com"
+- hideKeyboard
+- tapOn:
+    id: check
+- extendedWaitUntil:
+    visible:
+      id: verdict
+    timeout: 15000
+- assertVisible:
+    id: verdict
+    text: "Low risk.*"
+- scrollUntilVisible:
+    element:
+      text: ".*this sample domain is set up to show a low-risk result.*"
+    direction: DOWN
+    timeout: 10000
+- scrollUntilVisible:
+    element:
+      text: "Low risk means we found no strong warning signs.*"
+    direction: DOWN
+    timeout: 10000

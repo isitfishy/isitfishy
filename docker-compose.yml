@@ -1,0 +1,33 @@
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: isitfishy
+      POSTGRES_PASSWORD: isitfishy
+      POSTGRES_DB: isitfishy
+    ports: ["5432:5432"]
+    volumes: [db:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U isitfishy"]
+      interval: 5s
+      retries: 10
+
+  # A fixture-based stand-in that answers the scorer's HTTP contract; see tools/stub-scorer.
+  scorer:
+    build: ./tools/stub-scorer
+    ports: ["8000:8000"]
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    environment:
+      DATABASE_URL: postgresql://isitfishy:isitfishy@db:5432/isitfishy
+      SCORER_URL: http://scorer:8000
+    ports: ["3000:3000"]
+    depends_on:
+      db: { condition: service_healthy }
+      scorer: { condition: service_started }
+
+volumes:
+  db:

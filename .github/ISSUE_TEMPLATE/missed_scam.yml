@@ -1,0 +1,57 @@
+name: Missed scam
+description: A scam link or message was shown as low risk or not verified
+labels: [accuracy, missed-scam]
+body:
+  - type: markdown
+    attributes:
+      value: >
+        Thanks for reporting. You can also use **Report as a scam** in the app, which sends
+        only the link. Please do not open the link again to check it.
+  - type: input
+    id: link
+    attributes:
+      label: Link
+      description: >
+        The scam link, without its query string (the part after ?). Write it defanged if you
+        like, for example hxxps://example[.]com/path
+    validations:
+      required: true
+  - type: dropdown
+    id: verdict
+    attributes:
+      label: Result shown
+      options:
+        - Low risk
+        - Not verified
+        - Medium risk (should be high)
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of scam
+      options:
+        - Fake cargo or delivery
+        - Bank or payment
+        - Government, tax or fines
+        - Mobile operator
+        - Other
+  - type: textarea
+    id: message
+    attributes:
+      label: Message (optional)
+      description: >
+        The message it came in, with your name, phone number and codes replaced by
+        placeholders.
+  - type: input
+    id: when
+    attributes:
+      label: When you received it
+      placeholder: 2026-11-10
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Before posting
+      options:
+        - label: I removed personal details from the link and the message
+          required: true

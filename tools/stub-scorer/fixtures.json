@@ -1,0 +1,96 @@
+{
+  "domains": [
+    {
+      "domain": "example-scam.test",
+      "verdict": "high",
+      "unverified": false,
+      "score": 90,
+      "reasons": [
+        {
+          "group": "evidence",
+          "message": {
+            "tr": "Demo puanlayıcı: bu örnek alan adı yüksek risk sonucunu göstermek için ayarlandı.",
+            "en": "Demo scorer: this sample domain is set up to show a high-risk result.",
+            "de": "Demo-Bewerter: Diese Beispieldomain ist so eingestellt, dass sie ein hohes Risiko zeigt.",
+            "es": "Evaluador de demostración: este dominio de ejemplo está configurado para mostrar un riesgo alto.",
+            "fr": "Évaluateur de démonstration : ce domaine d'exemple est configuré pour afficher un risque élevé.",
+            "it": "Valutatore demo: questo dominio di esempio è impostato per mostrare un rischio alto."
+          }
+        }
+      ]
+    },
+    {
+      "domain": "example-suspicious.test",
+      "verdict": "medium",
+      "unverified": false,
+      "score": 50,
+      "reasons": [
+        {
+          "group": "warning",
+          "message": {
+            "tr": "Demo puanlayıcı: bu örnek alan adı şüpheli sonucunu göstermek için ayarlandı.",
+            "en": "Demo scorer: this sample domain is set up to show a suspicious result.",
+            "de": "Demo-Bewerter: Diese Beispieldomain ist so eingestellt, dass sie ein verdächtiges Ergebnis zeigt.",
+            "es": "Evaluador de demostración: este dominio de ejemplo está configurado para mostrar un resultado sospechoso.",
+            "fr": "Évaluateur de démonstration : ce domaine d'exemple est configuré pour afficher un résultat suspect.",
+            "it": "Valutatore demo: questo dominio di esempio è impostato per mostrare un risultato sospetto."
+          }
+        }
+      ]
+    },
+    {
+      "domain": "example.com",
+      "verdict": "low",
+      "unverified": false,
+      "score": 5,
+      "reasons": [
+        {
+          "group": "reassurance",
+          "message": {
+            "tr": "Demo puanlayıcı: bu örnek alan adı düşük risk sonucunu göstermek için ayarlandı.",
+            "en": "Demo scorer: this sample domain is set up to show a low-risk result.",
+            "de": "Demo-Bewerter: Diese Beispieldomain ist so eingestellt, dass sie ein geringes Risiko zeigt.",
+            "es": "Evaluador de demostración: este dominio de ejemplo está configurado para mostrar un riesgo bajo.",
+            "fr": "Évaluateur de démonstration : ce domaine d'exemple est configuré pour afficher un risque faible.",
+            "it": "Valutatore demo: questo dominio di esempio è impostato per mostrare un rischio basso."
+          }
+        }
+      ]
+    }
+  ],
+  "unknown": {
+    "verdict": "low",
+    "unverified": true,
+    "score": 0,
+    "reasons": [
+      {
+        "group": "warning",
+        "message": {
+          "tr": "Demo puanlayıcı bu linki değerlendiremez. Gerçek bir kontrol için tam puanlayıcı gerekir.",
+          "en": "The demo scorer cannot judge this link. A real check needs the full scorer.",
+          "de": "Der Demo-Bewerter kann diesen Link nicht beurteilen. Für eine echte Prüfung ist der vollständige Bewerter nötig.",
+          "es": "El evaluador de demostración no puede juzgar este enlace. Una comprobación real necesita el evaluador completo.",
+          "fr": "L'évaluateur de démonstration ne peut pas juger ce lien. Une vraie vérification nécessite l'évaluateur complet.",
+          "it": "Il valutatore demo non può giudicare questo link. Un controllo reale richiede il valutatore completo."
+        }
+      }
+    ]
+  },
+  "noLink": {
+    "verdict": "low",
+    "unverified": true,
+    "reasons": [
+      {
+        "group": "warning",
+        "message": {
+          "tr": "Metinde link bulunamadı. Demo puanlayıcı yalnızca linkleri okur.",
+          "en": "No link was found in the text. The demo scorer only reads links.",
+          "de": "Im Text wurde kein Link gefunden. Der Demo-Bewerter liest nur Links.",
+          "es": "No se encontró ningún enlace en el texto. El evaluador de demostración solo lee enlaces.",
+          "fr": "Aucun lien n'a été trouvé dans le texte. L'évaluateur de démonstration ne lit que les liens.",
+          "it": "Nessun link trovato nel testo. Il valutatore demo legge solo i link."
+        }
+      }
+    ]
+  }
+}

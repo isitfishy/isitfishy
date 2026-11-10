@@ -1,0 +1,65 @@
+name: release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to attach the APK to
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+      # The public HTTPS address of the API. An installed app has nothing to talk to without
+      # it, so no APK is built until the repository variable is set.
+      EXPO_PUBLIC_API_URL: ${{ vars.PUBLIC_API_URL }}
+    steps:
+      - name: Check the API address
+        id: api
+        run: |
+          if [ -z "$EXPO_PUBLIC_API_URL" ]; then
+            echo "::notice::Set the PUBLIC_API_URL repository variable to an https address to attach an Android APK to releases."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v7
+        if: steps.api.outputs.ready == 'true'
+        with:
+          ref: ${{ env.TAG }}
+      - uses: pnpm/action-setup@v5
+        if: steps.api.outputs.ready == 'true'
+      - uses: actions/setup-node@v7
+        if: steps.api.outputs.ready == 'true'
+        with:
+          node-version: 22
+          cache: pnpm
+      - uses: actions/setup-java@v6
+        if: steps.api.outputs.ready == 'true'
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Build the APK
+        if: steps.api.outputs.ready == 'true'
+        run: |
+          pnpm install --frozen-lockfile --filter @isitfishy/mobile...
+          cd apps/mobile
+          pnpm exec expo prebuild --platform android --no-install
+          cd android && ./gradlew assembleRelease --no-daemon
+          cp app/build/outputs/apk/release/app-release.apk "$RUNNER_TEMP/isitfishy-$TAG.apk"
+
+      - name: Attach the APK to the release
+        if: steps.api.outputs.ready == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$TAG" "$RUNNER_TEMP/isitfishy-$TAG.apk" --clobber

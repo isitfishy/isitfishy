@@ -1,0 +1,141 @@
+:root {
+  color-scheme: light dark;
+  --fg: #1d2330;
+  --muted: #5b6474;
+  --bg: #f6f7f9;
+  --card: #ffffff;
+  --line: #d9dde3;
+  --accent: #1f6feb;
+  --danger: #c62828;
+  --ok: #2e7d32;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fg: #e6e9ef;
+    --muted: #9aa3b2;
+    --bg: #12151b;
+    --card: #1b1f27;
+    --line: #2c323d;
+    --accent: #5a9bff;
+    --danger: #ef6b6b;
+    --ok: #66bb6a;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+body {
+  margin: 0 auto;
+  max-width: 960px;
+  padding: 16px;
+  font: 15px/1.45 system-ui, sans-serif;
+  color: var(--fg);
+  background: var(--bg);
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+h1 {
+  font-size: 1.3rem;
+}
+
+button,
+select,
+input {
+  font: inherit;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--card);
+  color: var(--fg);
+}
+
+button {
+  cursor: pointer;
+}
+
+button.confirm {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+button.reject {
+  border-color: var(--ok);
+  color: var(--ok);
+}
+
+#login {
+  display: grid;
+  gap: 8px;
+  max-width: 420px;
+}
+
+.filters,
+.actions,
+.buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.hint,
+.meta {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  margin: 12px 0;
+}
+
+.url {
+  font-family: ui-monospace, monospace;
+  overflow-wrap: anywhere;
+  font-weight: 600;
+}
+
+details {
+  margin-top: 8px;
+}
+
+textarea {
+  width: 100%;
+  min-height: 9em;
+  font: 0.85rem/1.4 ui-monospace, monospace;
+  color: var(--fg);
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 8px;
+}
+
+.note {
+  margin: 8px 0 0;
+  color: var(--danger);
+}
+
+#message:empty {
+  display: none;
+}

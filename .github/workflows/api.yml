@@ -1,0 +1,48 @@
+name: api
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["apps/api/**", "packages/api-client/**", "pnpm-lock.yaml", ".github/workflows/api.yml"]
+  pull_request:
+    paths: ["apps/api/**", "packages/api-client/**", "pnpm-lock.yaml", ".github/workflows/api.yml"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: isitfishy
+          POSTGRES_PASSWORD: isitfishy
+          POSTGRES_DB: isitfishy
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U isitfishy" --health-interval 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://isitfishy:isitfishy@localhost:5432/isitfishy
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --filter @isitfishy/api... --filter @isitfishy/api-client
+      - run: pnpm exec prisma generate
+      - run: pnpm exec prisma migrate deploy
+      - run: pnpm exec eslint "{src,test}/**/*.ts"
+      - run: pnpm build
+      - run: pnpm test
+      - run: pnpm test:e2e
+      - name: Check the API client matches the API
+        run: |
+          pnpm openapi
+          pnpm --filter @isitfishy/api-client generate
+          git diff --exit-code -- ../../packages/api-client
+      - run: docker build -f Dockerfile -t isitfishy-api ../..

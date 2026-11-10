@@ -1,0 +1,23 @@
+appId: io.github.brkozer.isitfishy
+name: A sample suspicious link is shown as suspicious
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: input
+- inputText: "https://login.example-suspicious.test"
+- hideKeyboard
+- tapOn:
+    id: check
+- extendedWaitUntil:
+    visible:
+      id: verdict
+    timeout: 15000
+- assertVisible:
+    id: verdict
+    text: "Suspicious.*"
+- scrollUntilVisible:
+    element:
+      text: ".*this sample domain is set up to show a suspicious result.*"
+    direction: DOWN
+    timeout: 10000

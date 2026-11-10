@@ -1,0 +1,27 @@
+name: audit
+
+# Known vulnerabilities in production dependencies. Informational on push; the weekly run
+# fails when something is found.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 5 * * 1"
+  push:
+    branches: [main]
+    paths: ["pnpm-lock.yaml", ".github/workflows/audit.yml"]
+
+permissions:
+  contents: read
+
+jobs:
+  pnpm:
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ github.event_name == 'push' }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+      # Moderate advisories in Expo dev tooling (glob, minimatch) wait for an Expo release.
+      - run: pnpm audit --prod --audit-level high

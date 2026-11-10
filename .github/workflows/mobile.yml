@@ -1,0 +1,28 @@
+name: mobile
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["apps/mobile/**", "packages/api-client/**", "pnpm-lock.yaml", ".github/workflows/mobile.yml"]
+  pull_request:
+    paths: ["apps/mobile/**", "packages/api-client/**", "pnpm-lock.yaml", ".github/workflows/mobile.yml"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --filter @isitfishy/mobile...
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm --filter @isitfishy/api-client typecheck
+      - run: pnpm --filter @isitfishy/api-client test

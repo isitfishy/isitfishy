@@ -1,0 +1,320 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/healthz": {
+      "get": {
+        "operationId": "Health_health",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthStatus"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "health"
+        ]
+      }
+    },
+    "/v1/check": {
+      "post": {
+        "operationId": "Check_check",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckResult"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": ""
+          },
+          "503": {
+            "description": "Temporarily unavailable."
+          }
+        },
+        "tags": [
+          "check"
+        ]
+      }
+    },
+    "/v1/reports": {
+      "post": {
+        "operationId": "Reports_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateReportDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportView"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Not a valid link."
+          },
+          "429": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "reports"
+        ]
+      }
+    },
+    "/v1/reports/trending": {
+      "get": {
+        "operationId": "Reports_trending",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/TrendingDomain"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "reports"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "isitfishy API",
+    "description": "Check links, QR payloads and SMS text; report scam links.",
+    "version": "0.1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "schemas": {
+      "HealthStatus": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "CheckDto": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "string",
+            "description": "A link, QR payload or SMS body. Checked in memory and never stored.",
+            "example": "PTT: Gonderiniz bekletiliyor ptt-teslimat-bilgi.xyz/tr"
+          }
+        },
+        "required": [
+          "input"
+        ]
+      },
+      "Verdict": {
+        "type": "string",
+        "enum": [
+          "low",
+          "medium",
+          "high"
+        ]
+      },
+      "ReasonGroup": {
+        "type": "string",
+        "enum": [
+          "evidence",
+          "warning",
+          "reassurance"
+        ]
+      },
+      "Reason": {
+        "type": "object",
+        "properties": {
+          "group": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReasonGroup"
+              }
+            ]
+          },
+          "message": {
+            "type": "object",
+            "description": "Explanation keyed by language code.",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "group",
+          "message"
+        ]
+      },
+      "CheckResult": {
+        "type": "object",
+        "properties": {
+          "verdict": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/Verdict"
+              }
+            ]
+          },
+          "unverified": {
+            "type": "boolean",
+            "description": "True when the verdict is low but nothing speaks for the link."
+          },
+          "link": {
+            "type": "string",
+            "nullable": true,
+            "description": "The link the verdict is about."
+          },
+          "destination": {
+            "type": "string",
+            "nullable": true,
+            "description": "Where it leads, if known."
+          },
+          "preview": {
+            "type": "string",
+            "nullable": true,
+            "description": "Base64 JPEG of the page behind the link, when it could be opened."
+          },
+          "reasons": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Reason"
+            }
+          }
+        },
+        "required": [
+          "verdict",
+          "unverified",
+          "reasons"
+        ]
+      },
+      "ReportCategory": {
+        "type": "string",
+        "enum": [
+          "CARGO",
+          "BANK",
+          "GOVERNMENT",
+          "TELECOM",
+          "OTHER"
+        ]
+      },
+      "ReportKind": {
+        "type": "string",
+        "enum": [
+          "SCAM",
+          "NOT_SCAM"
+        ],
+        "description": "SCAM (default) reports a scam; NOT_SCAM disputes a warning the app showed."
+      },
+      "CreateReportDto": {
+        "type": "object",
+        "properties": {
+          "url": {
+            "type": "string",
+            "description": "The suspicious link only, not the message around it."
+          },
+          "category": {
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReportCategory"
+              }
+            ]
+          },
+          "kind": {
+            "description": "SCAM (default) reports a scam; NOT_SCAM disputes a warning the app showed.",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/ReportKind"
+              }
+            ]
+          }
+        },
+        "required": [
+          "url"
+        ]
+      },
+      "ReportView": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "createdAt"
+        ]
+      },
+      "TrendingDomain": {
+        "type": "object",
+        "properties": {
+          "registeredDomain": {
+            "type": "string"
+          },
+          "reports": {
+            "type": "number",
+            "description": "Reports in the last 7 days."
+          }
+        },
+        "required": [
+          "registeredDomain",
+          "reports"
+        ]
+      }
+    }
+  }
+}

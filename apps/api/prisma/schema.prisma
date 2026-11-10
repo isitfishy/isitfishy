@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// SCAM: the user says the link is a scam. NOT_SCAM: the user disputes a warning (false positive).
+enum ReportKind {
+  SCAM
+  NOT_SCAM
+}
+
+/// Set by an admin. REJECTED reports drop out of trends.
+enum ReviewStatus {
+  PENDING
+  CONFIRMED
+  REJECTED
+}
+
+enum ReportCategory {
+  CARGO
+  BANK
+  GOVERNMENT
+  TELECOM
+  OTHER
+}
+
+/// A link a user reported as a scam. Only the link is kept: no SMS text, sender or device data.
+model Report {
+  id               String         @id @default(uuid())
+  url              String
+  host             String
+  registeredDomain String
+  category         ReportCategory @default(OTHER)
+  kind             ReportKind     @default(SCAM)
+  score            Int?
+  status           ReviewStatus   @default(PENDING)
+  reviewedAt       DateTime?
+  createdAt        DateTime       @default(now())
+
+  @@index([registeredDomain])
+  @@index([createdAt])
+  @@index([status, reviewedAt])
+}

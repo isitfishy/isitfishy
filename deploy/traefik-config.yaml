@@ -1,0 +1,12 @@
+# Keep the real client address on requests that reach Traefik, so the API can rate-limit
+# per client instead of per node.
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    service:
+      spec:
+        externalTrafficPolicy: Local

@@ -1,0 +1,23 @@
+appId: io.github.brkozer.isitfishy
+name: A link the demo scorer does not know is not verified
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: input
+- inputText: "https://shop.somewhere.invalid"
+- hideKeyboard
+- tapOn:
+    id: check
+- extendedWaitUntil:
+    visible:
+      id: verdict
+    timeout: 15000
+- assertVisible:
+    id: verdict
+    text: "Not verified.*"
+- scrollUntilVisible:
+    element:
+      id: unverified-note
+    direction: DOWN
+    timeout: 10000

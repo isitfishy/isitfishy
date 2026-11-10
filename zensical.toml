@@ -1,0 +1,67 @@
+[project]
+site_name = "IsItFishy"
+site_description = "Scam checker for links, QR codes and SMS messages"
+site_url = "https://isitfishy.github.io/isitfishy/"
+repo_url = "https://github.com/isitfishy/isitfishy"
+repo_name = "isitfishy/isitfishy"
+edit_uri = "edit/main/docs/"
+copyright = "MIT licensed"
+nav = [
+  { "Home" = "index.md" },
+  { "Getting started" = [
+    { "How it is built" = "architecture.md" },
+    { "Self-hosting" = "self-hosting.md" },
+    { "Mobile app" = "mobile.md" },
+  ] },
+  { "Reference" = [
+    { "API" = "api.md" },
+    { "Scoring service contract" = "scoring-contract.md" },
+    { "Privacy" = "privacy.md" },
+    { "Results" = "results.md" },
+  ] },
+  { "Contributing" = "contributing.md" },
+  { "Changelog" = "changelog.md" },
+]
+
+[project.theme]
+language = "en"
+features = [
+  "content.code.copy",
+  "content.action.edit",
+  "navigation.instant",
+  "navigation.instant.progress",
+  "navigation.sections",
+  "navigation.top",
+  "navigation.tracking",
+  "navigation.indexes",
+  "search.highlight",
+  "search.suggest",
+  "toc.follow",
+]
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+toggle.icon = "lucide/sun"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+toggle.icon = "lucide/moon"
+toggle.name = "Switch to light mode"
+
+[project.markdown_extensions]
+admonition = {}
+attr_list = {}
+md_in_html = {}
+tables = {}
+toc.permalink = true
+pymdownx.details = {}
+pymdownx.highlight.anchor_linenums = true
+pymdownx.inlinehilite = {}
+pymdownx.snippets = {}
+pymdownx.superfences.custom_fences = [
+  { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" },
+]
+pymdownx.tabbed.alternate_style = true

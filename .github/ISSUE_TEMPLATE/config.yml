@@ -1,0 +1,8 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Report a vulnerability
+    url: https://github.com/isitfishy/isitfishy/security/advisories/new
+    about: Please report security problems in IsItFishy privately.
+  - name: Documentation
+    url: https://isitfishy.github.io/isitfishy/
+    about: Self-hosting, the API and the scoring service contract.

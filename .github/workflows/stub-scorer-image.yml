@@ -1,0 +1,68 @@
+name: stub-scorer-image
+
+# Publishes the stub scorer image to ghcr.io/isitfishy/isitfishy-stub-scorer.
+#   Tag vX.Y.Z  -> :X.Y.Z and :latest. X.Y.Z must equal appVersion in
+#                  deploy/helm/isitfishy/Chart.yaml, the tag the chart pulls by default.
+#   Manual run  -> on a tag, the same as above; on a branch, :sha-<commit> only.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  IMAGE: ghcr.io/isitfishy/isitfishy-stub-scorer
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Pick image tags
+        id: tags
+        run: |
+          if [ "$GITHUB_REF_TYPE" = tag ]; then
+            version=${GITHUB_REF_NAME#v}
+            if ! printf '%s' "$version" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?$'; then
+              echo "::error::Tag $GITHUB_REF_NAME is not vX.Y.Z"
+              exit 1
+            fi
+            chart=$(awk '/^appVersion:/ { gsub(/["\047]/, "", $2); print $2 }' deploy/helm/isitfishy/Chart.yaml)
+            if [ "$version" != "$chart" ]; then
+              echo "::error::Tag $GITHUB_REF_NAME does not match the chart appVersion $chart"
+              exit 1
+            fi
+            echo "list=$IMAGE:$version $IMAGE:latest" >> "$GITHUB_OUTPUT"
+          else
+            echo "list=$IMAGE:sha-${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build
+        run: |
+          docker build -t stub-scorer \
+            --label "org.opencontainers.image.source=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
+            --label "org.opencontainers.image.revision=$GITHUB_SHA" \
+            --label "org.opencontainers.image.licenses=MIT" \
+            tools/stub-scorer
+
+      - name: Smoke test
+        run: |
+          docker run -d --name stub -p 8000:8000 stub-scorer
+          for i in $(seq 15); do curl -sf localhost:8000/healthz && break; sleep 1; done
+          curl -sf localhost:8000/v1/check -H 'content-type: application/json' \
+            -d '{"input":"https://www.example.com"}' | grep -q '"verdict":"low"'
+
+      - name: Push
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAGS: ${{ steps.tags.outputs.list }}
+        run: |
+          printf '%s' "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          for tag in $TAGS; do
+            docker tag stub-scorer "$tag"
+            docker push "$tag"
+          done

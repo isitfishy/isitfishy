@@ -1,0 +1,23 @@
+appId: io.github.brkozer.isitfishy
+name: A message with a sample scam link is high risk
+---
+- launchApp:
+    clearState: true
+- tapOn:
+    id: input
+- inputText: "Your parcel is waiting. Confirm your address: https://parcel.example-scam.test/track"
+- hideKeyboard
+- tapOn:
+    id: check
+- extendedWaitUntil:
+    visible:
+      id: verdict
+    timeout: 15000
+- assertVisible:
+    id: verdict
+    text: "High risk.*"
+- scrollUntilVisible:
+    element:
+      text: ".*this sample domain is set up to show a high-risk result.*"
+    direction: DOWN
+    timeout: 10000

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>IsItFishy review</title>
+    <link rel="stylesheet" href="/admin/admin.css" />
+    <script src="/admin/admin.js" defer></script>
+  </head>
+  <body>
+    <header>
+      <h1 data-text="title"></h1>
+      <div class="actions">
+        <button type="button" id="lang"></button>
+        <button type="button" id="logout" hidden data-text="logout"></button>
+      </div>
+    </header>
+
+    <form id="login" hidden>
+      <label for="token" data-text="tokenLabel"></label>
+      <input id="token" type="password" autocomplete="off" required />
+      <button type="submit" data-text="signIn"></button>
+      <p class="hint" data-text="tokenHint"></p>
+    </form>
+
+    <section id="queue" hidden>
+      <div class="filters">
+        <label><span data-text="status"></span> <select id="status"></select></label>
+        <label><span data-text="kind"></span> <select id="kind"></select></label>
+        <button type="button" id="refresh" data-text="refresh"></button>
+      </div>
+      <p class="hint" data-text="draftHint"></p>
+      <ul id="reports"></ul>
+    </section>
+
+    <p id="message" role="status"></p>
+  </body>
+</html>

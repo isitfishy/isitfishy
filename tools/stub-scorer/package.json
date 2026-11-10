@@ -1,0 +1,11 @@
+{
+  "name": "stub-scorer",
+  "private": true,
+  "description": "Fixture-based stand-in for the IsItFishy scorer",
+  "type": "module",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  }
+}

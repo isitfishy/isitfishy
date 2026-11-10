@@ -1,0 +1,66 @@
+{{- if .Values.backup.enabled }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-backups
+  labels: {{- include "isitfishy.labels" . | nindent 4 }}
+  annotations:
+    # Backups outlive the release: helm uninstall leaves this volume in place.
+    helm.sh/resource-policy: keep
+spec:
+  accessModes: [ReadWriteOnce]
+  resources: { requests: { storage: {{ .Values.backup.size }} } }
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backup
+  labels: {{- include "isitfishy.labels" . | nindent 4 }}
+spec:
+  schedule: {{ .Values.backup.schedule | quote }}
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      activeDeadlineSeconds: 3600
+      template:
+        metadata:
+          labels: { app: postgres-backup }
+        spec:
+          {{- include "isitfishy.podSecurity" . | nindent 10 }}
+            runAsUser: 70
+            fsGroup: 70
+          restartPolicy: Never
+          containers:
+            - name: backup
+              image: {{ .Values.images.postgres }}
+              imagePullPolicy: {{ .Values.images.pullPolicy }}
+              {{- include "isitfishy.containerSecurity" . | nindent 14 }}
+              env:
+                - { name: PGHOST, value: postgres }
+                - { name: PGDATABASE, value: {{ .Values.postgres.database | quote }} }
+                - { name: PGUSER, value: {{ .Values.postgres.user | quote }} }
+                - name: PGPASSWORD
+                  valueFrom: { secretKeyRef: { name: {{ .Values.postgres.passwordSecret }}, key: password } }
+                - { name: KEEP, value: {{ .Values.backup.keep | quote }} }
+              # One dump per day (a second run on the same day replaces it). The dump is checked
+              # with pg_restore --list before it replaces anything, then the oldest are removed.
+              command:
+                - sh
+                - -euc
+                - |
+                  out="/backups/$PGDATABASE-$(date -u +%F).dump"
+                  rm -f /backups/*.partial
+                  pg_dump --format=custom --file="$out.partial"
+                  pg_restore --list "$out.partial" > /dev/null
+                  mv "$out.partial" "$out"
+                  ls -1t /backups/*.dump | tail -n +"$((KEEP + 1))" | xargs -r rm -f
+                  ls -lh /backups
+              resources: {{- toYaml .Values.backup.resources | nindent 16 }}
+              volumeMounts: [{ name: backups, mountPath: /backups }]
+          volumes:
+            - name: backups
+              persistentVolumeClaim: { claimName: postgres-backups }
+{{- end }}
