@@ -3,6 +3,12 @@ import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as Clipboard from 'expo-clipboard';
 import Constants, { ExecutionEnvironment } from 'expo-constants';
 import { useShareIntent } from 'expo-share-intent';
+import {
+  Lexend_400Regular,
+  Lexend_600SemiBold,
+  Lexend_700Bold,
+  useFonts,
+} from '@expo-google-fonts/lexend';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo, useState } from 'react';
 import {
@@ -24,13 +30,17 @@ import { sharedText } from './src/format';
 import { addToHistory, type HistoryEntry, loadHistory, saveHistory } from './src/history';
 import { t } from './src/i18n';
 import { LanguageProvider, useLang } from './src/language';
-import { type Theme, ThemeProvider, useTheme } from './src/theme';
+import { Finder } from './src/components/Finder';
+import { FONTS, type Theme, ThemeProvider, useTheme } from './src/theme';
 
 // Expo Go and the web have no share extension; sharing works in development and store builds.
 const shareDisabled =
   Platform.OS === 'web' || Constants.executionEnvironment === ExecutionEnvironment.StoreClient;
 
 export default function App() {
+  // The splash screen stays up until Lexend is ready, so no text jumps between faces.
+  const [fontsReady] = useFonts({ Lexend_400Regular, Lexend_600SemiBold, Lexend_700Bold });
+  if (!fontsReady) return null;
   return (
     <SafeAreaProvider>
       <LanguageProvider>
@@ -147,28 +157,42 @@ function CheckScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.fill}>
-      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
-        <View style={styles.topBar}>
-          <View style={styles.brand}>
-            <View style={styles.logo}>
-              <Image source={require('./assets/brand-mark.png')} style={styles.logoMark} accessibilityIgnoresInvertColors />
+    <SafeAreaView style={styles.fill} edges={['top', 'left', 'right']}>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.container}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.band}>
+          <View style={styles.topBar}>
+            <View style={styles.brand}>
+              <Image
+                source={require('./assets/brand-mark.png')}
+                style={styles.logoMark}
+                accessibilityIgnoresInvertColors
+              />
+              <Text style={styles.title} accessibilityRole="header">
+                {s.title}
+              </Text>
             </View>
-            <Text style={styles.title}>{s.title}</Text>
+            <Pressable
+              onPress={() => setShowSettings(true)}
+              hitSlop={8}
+              style={styles.settingsButton}
+              accessibilityRole="button"
+            >
+              <Ionicons name="settings-outline" size={18} color={theme.onInk} />
+              <Text style={styles.settingsText}>{s.settings}</Text>
+            </Pressable>
           </View>
-          <Pressable
-            onPress={() => setShowSettings(true)}
-            hitSlop={8}
-            style={styles.settingsButton}
-            accessibilityRole="button"
-          >
-            <Ionicons name="settings-outline" size={18} color={theme.muted} />
-            <Text style={styles.settingsText}>{s.settings}</Text>
-          </Pressable>
+          <Text style={styles.subtitle}>{s.subtitle}</Text>
         </View>
-        <Text style={styles.subtitle}>{s.subtitle}</Text>
 
+        <View style={styles.body}>
         <View style={styles.inputCard}>
+          <Finder color={theme.mark} corner="topLeft" />
+          <Finder color={theme.mark} corner="topRight" />
+          <Finder color={theme.mark} corner="bottomLeft" />
           <TextInput
             style={styles.input}
             value={input}
@@ -248,6 +272,7 @@ function CheckScreen() {
             }}
           />
         )}
+        </View>
       </ScrollView>
       <SettingsSheet lang={lang} visible={showSettings} onClose={() => setShowSettings(false)} />
       <StatusBar style={theme.dark ? 'light' : 'dark'} />
@@ -257,87 +282,101 @@ function CheckScreen() {
 
 function makeStyles(c: Theme) {
   return StyleSheet.create({
-    fill: { flex: 1, backgroundColor: c.bg },
+    fill: { flex: 1, backgroundColor: c.ink },
+    scroll: { backgroundColor: c.bg },
     camera: { flex: 1 },
-    container: { padding: 20, gap: 14, paddingBottom: 48 },
+    container: { paddingBottom: 48 },
+    band: {
+      backgroundColor: c.ink,
+      paddingHorizontal: 20,
+      paddingTop: 14,
+      paddingBottom: 22,
+      gap: 10,
+    },
     topBar: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      marginTop: 8,
     },
-    brand: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-    logo: {
-      width: 38,
-      height: 38,
-      borderRadius: 11,
-      backgroundColor: c.primaryFill,
-      alignItems: 'center',
-      justifyContent: 'center',
+    brand: { flexDirection: 'row', alignItems: 'center', gap: 12, flexShrink: 1 },
+    logoMark: { width: 44, height: 44 },
+    title: {
+      color: c.onInk,
+      fontFamily: FONTS.bold,
+      fontSize: c.font(27),
+      letterSpacing: -0.4,
+      flexShrink: 1,
     },
-    logoMark: { width: 30, height: 30 },
-    title: { color: c.text, fontSize: c.font(28), fontWeight: '800' },
-    settingsButton: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-    settingsText: { color: c.muted, fontWeight: '600', fontSize: c.font(14) },
-    subtitle: { color: c.muted, fontSize: c.font(15), lineHeight: c.font(21) },
+    settingsButton: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 6 },
+    settingsText: { color: c.onInk, fontFamily: FONTS.semibold, fontSize: c.font(14) },
+    subtitle: {
+      color: '#c3c9de',
+      fontFamily: FONTS.regular,
+      fontSize: c.font(15),
+      lineHeight: c.font(22),
+      maxWidth: 520,
+    },
+    body: { padding: 20, gap: 16 },
     inputCard: {
       backgroundColor: c.surface,
-      borderWidth: 1,
-      borderColor: c.border,
-      borderRadius: 16,
-      padding: 12,
-      gap: 10,
+      borderRadius: 6,
+      paddingTop: 26,
+      paddingBottom: 14,
+      paddingHorizontal: 16,
+      gap: 12,
     },
     input: {
-      minHeight: 96,
+      minHeight: 104,
       color: c.text,
+      fontFamily: FONTS.regular,
       fontSize: c.font(16),
+      lineHeight: c.font(23),
       textAlignVertical: 'top',
       padding: 4,
     },
-    inputTools: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
+    inputTools: { flexDirection: 'row', gap: 6, flexWrap: 'wrap', paddingLeft: 12 },
     chip: {
       flexDirection: 'row',
       alignItems: 'center',
-      gap: 6,
-      paddingVertical: 7,
-      paddingHorizontal: 12,
-      borderRadius: 999,
+      gap: 5,
+      paddingVertical: 8,
+      paddingHorizontal: 10,
+      borderRadius: 6,
       backgroundColor: c.chip,
     },
-    chipText: { color: c.text, fontWeight: '600', fontSize: c.font(14) },
+    chipText: { color: c.text, fontFamily: FONTS.semibold, fontSize: c.font(14) },
     primary: {
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
-      gap: 8,
+      gap: 10,
       backgroundColor: c.primaryFill,
-      borderRadius: 14,
-      paddingVertical: 15,
+      borderRadius: 8,
+      paddingVertical: 16,
     },
-    disabled: { opacity: 0.5 },
-    primaryText: { color: c.onPrimary, fontWeight: '700', fontSize: c.font(16) },
+    disabled: { opacity: 0.45 },
+    primaryText: { color: c.onPrimary, fontFamily: FONTS.bold, fontSize: c.font(17) },
     cancel: {
       position: 'absolute',
       bottom: 48,
       alignSelf: 'center',
       backgroundColor: c.primaryFill,
-      borderRadius: 14,
+      borderRadius: 8,
       paddingVertical: 13,
       paddingHorizontal: 28,
     },
     examples: { gap: 8 },
-    small: { color: c.muted, fontSize: c.font(13), fontWeight: '600' },
+    small: { color: c.muted, fontFamily: FONTS.semibold, fontSize: c.font(13) },
     exampleRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
     example: {
       borderWidth: 1,
       borderColor: c.border,
-      borderRadius: 999,
-      paddingVertical: 7,
+      borderRadius: 6,
+      paddingVertical: 8,
       paddingHorizontal: 12,
       backgroundColor: c.surface,
     },
-    exampleText: { color: c.text, fontSize: c.font(14) },
-    error: { color: c.verdict.high, fontSize: c.font(15) },
+    exampleText: { color: c.text, fontFamily: FONTS.regular, fontSize: c.font(14) },
+    error: { color: c.verdict.high, fontFamily: FONTS.regular, fontSize: c.font(15) },
   });
 }

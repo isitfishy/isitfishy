@@ -14,10 +14,11 @@ import {
 import type { Lang } from '../i18n';
 import { t } from '../i18n';
 import { HelpSheet } from './Panels';
-import { type Theme, useTheme, verdictIcon } from '../theme';
+import { FONTS, type Theme, useTheme, verdictIcon } from '../theme';
 
-// How full the bar is for each band: a picture of the band, not a measurement.
-const METER = { low: '15%', unverified: '40%', medium: '60%', high: '95%' } as const;
+// How many of the five modules light up for each band: a picture of the band, not a measurement.
+const METER = { low: 1, unverified: 2, medium: 3, high: 5 } as const;
+const MODULES = [0, 1, 2, 3, 4];
 
 type Send = 'idle' | 'sending' | 'done' | 'failed';
 type IconName = keyof typeof Ionicons.glyphMap;
@@ -103,8 +104,13 @@ export function ResultCard({ result, lang }: { result: CheckResult; lang: Lang }
           <Text style={styles.headline}>{s.headline[view]}</Text>
         </View>
       </View>
-      <View style={styles.meter} accessibilityLabel={s.verdict[view]}>
-        <View style={[styles.meterFill, { width: METER[view], backgroundColor: color }]} />
+      <View style={[styles.meter, { backgroundColor: theme.tint[view] }]} accessibilityLabel={s.verdict[view]}>
+        {MODULES.map((i) => (
+          <View
+            key={i}
+            style={[styles.module, { backgroundColor: i < METER[view] ? color : theme.chip }]}
+          />
+        ))}
       </View>
 
       <View style={styles.body}>
@@ -286,40 +292,47 @@ export function ResultCard({ result, lang }: { result: CheckResult; lang: Lang }
 function makeStyles(c: Theme) {
   return StyleSheet.create({
     card: {
-      borderWidth: 1,
-      borderRadius: 16,
+      borderWidth: 2,
+      borderRadius: 8,
       overflow: 'hidden',
       backgroundColor: c.surface,
     },
-    header: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 16 },
+    header: { flexDirection: 'row', alignItems: 'center', gap: 14, padding: 18 },
     grow: { flex: 1 },
-    verdict: { fontWeight: '800', fontSize: c.font(19) },
-    headline: { color: c.text, fontSize: c.font(15), marginTop: 2 },
-    meter: { height: 6, backgroundColor: c.chip },
-    meterFill: { height: 6 },
-    body: { padding: 16, gap: 16 },
-    stop: { borderWidth: 2, borderRadius: 12, padding: 14, gap: 10 },
-    stopTitle: { fontWeight: '800', fontSize: c.font(18) },
-    stopDone: { color: c.text, fontWeight: '600', fontSize: c.font(15), lineHeight: c.font(21) },
+    verdict: { fontFamily: FONTS.bold, fontSize: c.font(22), letterSpacing: -0.3 },
+    headline: {
+      color: c.text,
+      fontFamily: FONTS.regular,
+      fontSize: c.font(15),
+      lineHeight: c.font(21),
+      marginTop: 2,
+    },
+    // Five square modules, like a row of a QR code.
+    meter: { flexDirection: 'row', gap: 4, paddingHorizontal: 18, paddingBottom: 16 },
+    module: { flex: 1, height: 8, borderRadius: 1 },
+    body: { padding: 18, gap: 18 },
+    stop: { borderWidth: 2, borderRadius: 6, padding: 16, gap: 10 },
+    stopTitle: { fontFamily: FONTS.bold, fontSize: c.font(19) },
+    stopDone: { color: c.text, fontFamily: FONTS.semibold, fontSize: c.font(15), lineHeight: c.font(22) },
     address: {
       flexDirection: 'row',
       gap: 8,
       padding: 12,
-      borderRadius: 10,
+      borderRadius: 6,
       backgroundColor: c.chip,
     },
-    addressLabel: { color: c.muted, fontSize: c.font(12), fontWeight: '600' },
+    addressLabel: { color: c.muted, fontFamily: FONTS.semibold, fontSize: c.font(12) },
     addressText: {
       color: c.text,
       fontSize: c.font(13),
       fontFamily: Platform.select({ ios: 'Menlo', default: 'monospace' }),
     },
-    section: { gap: 8 },
+    section: { gap: 10 },
     // Small by default, so the verdict and the warning stay in view next to the page's pixels.
     preview: {
       width: '100%',
       height: 320,
-      borderRadius: 10,
+      borderRadius: 6,
       borderWidth: 1,
       borderColor: c.border,
       backgroundColor: c.chip,
@@ -329,38 +342,49 @@ function makeStyles(c: Theme) {
       maxWidth: 390,
       alignSelf: 'center',
       aspectRatio: 390 / 844,
-      borderRadius: 10,
+      borderRadius: 6,
       borderWidth: 1,
       borderColor: c.border,
     },
-    sectionTitle: { color: c.text, fontWeight: '700', fontSize: c.font(15) },
-    previewNote: { color: c.text, fontWeight: '600', fontSize: c.font(13), lineHeight: c.font(18) },
-    line: { flexDirection: 'row', gap: 8 },
-    lineIcon: { marginTop: 1 },
-    lineText: { color: c.text, fontSize: c.font(15), lineHeight: c.font(21), flex: 1 },
-    note: { color: c.muted, fontSize: c.font(13), lineHeight: c.font(18) },
-    error: { color: c.verdict.high, fontSize: c.font(14) },
+    sectionTitle: { color: c.text, fontFamily: FONTS.bold, fontSize: c.font(16) },
+    previewNote: { color: c.text, fontFamily: FONTS.semibold, fontSize: c.font(13), lineHeight: c.font(18) },
+    line: { flexDirection: 'row', gap: 10 },
+    lineIcon: { marginTop: 2 },
+    lineText: {
+      color: c.text,
+      fontFamily: FONTS.regular,
+      fontSize: c.font(15),
+      lineHeight: c.font(22),
+      flex: 1,
+    },
+    note: { color: c.muted, fontFamily: FONTS.regular, fontSize: c.font(13), lineHeight: c.font(19) },
+    error: { color: c.verdict.high, fontFamily: FONTS.regular, fontSize: c.font(14) },
     actions: { gap: 4 },
     action: {
       flexDirection: 'row',
       justifyContent: 'center',
       alignItems: 'center',
-      gap: 6,
-      borderWidth: 1,
-      borderRadius: 10,
-      paddingVertical: 11,
+      gap: 8,
+      borderWidth: 1.5,
+      borderRadius: 8,
+      paddingVertical: 13,
     },
-    actionText: { fontWeight: '600', fontSize: c.font(15) },
+    actionText: { fontFamily: FONTS.semibold, fontSize: c.font(15) },
     primary: { borderWidth: 0 },
     helpButton: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: 10,
-      borderRadius: 10,
-      padding: 12,
+      borderRadius: 6,
+      padding: 14,
     },
-    helpText: { color: c.text, fontWeight: '700', fontSize: c.font(15) },
+    helpText: { color: c.text, fontFamily: FONTS.bold, fontSize: c.font(15) },
     textAction: { alignItems: 'center', paddingVertical: 8 },
-    textActionText: { color: c.muted, fontSize: c.font(14), textDecorationLine: 'underline' },
+    textActionText: {
+      color: c.muted,
+      fontFamily: FONTS.regular,
+      fontSize: c.font(14),
+      textDecorationLine: 'underline',
+    },
   });
 }

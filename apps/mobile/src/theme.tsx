@@ -3,18 +3,30 @@ import type { Shown } from './format';
 import { createContext, type ReactNode, useContext, useEffect, useMemo, useState } from 'react';
 import { useColorScheme } from 'react-native';
 
+/** Lexend, the face of the wordmark; loaded in App before the first screen. */
+export const FONTS = {
+  regular: 'Lexend_400Regular',
+  semibold: 'Lexend_600SemiBold',
+  bold: 'Lexend_700Bold',
+} as const;
+
 const light = {
   dark: false,
-  bg: '#f6f8fa',
+  // Cool paper with a hint of the brand blue.
+  bg: '#f3f5fb',
   surface: '#ffffff',
-  text: '#1f2328',
-  muted: '#59636e',
-  border: '#d1d9e0',
+  text: '#0e1430',
+  muted: '#545c75',
+  border: '#d9deea',
   primary: '#1F5BFF',
   // Background of filled buttons under onPrimary text.
   primaryFill: '#1F5BFF',
   onPrimary: '#ffffff',
-  chip: '#eef1f4',
+  chip: '#e9edf7',
+  // The brand band at the top and the corner marks of the input.
+  ink: '#0e1430',
+  onInk: '#ffffff',
+  mark: '#0e1430',
   verdict: {
     low: '#1a7f37',
     medium: '#9a6700',
@@ -38,18 +50,22 @@ export type Theme = Palette & {
 
 const dark: Palette = {
   dark: true,
-  bg: '#0d1117',
-  surface: '#161b22',
-  text: '#e6edf3',
-  muted: '#9198a1',
-  border: '#30363d',
-  primary: '#6F95FF',
+  // The brand ink itself is the night ground.
+  bg: '#0e1430',
+  surface: '#161e42',
+  text: '#eef1fa',
+  muted: '#a3abc6',
+  border: '#2a3460',
+  primary: '#7d9fff',
   // Background of filled buttons under onPrimary text.
   primaryFill: '#1F5BFF',
   onPrimary: '#ffffff',
-  chip: '#21262d',
+  chip: '#222b55',
+  ink: '#080c20',
+  onInk: '#ffffff',
+  mark: '#10c4f0',
   verdict: { low: '#3fb950', medium: '#d29922', high: '#f85149', unverified: '#d29922' },
-  tint: { low: '#12261e', medium: '#272115', high: '#2d1517', unverified: '#272115' },
+  tint: { low: '#10291f', medium: '#2a2414', high: '#311724', unverified: '#2a2414' },
 };
 
 export const THEME_PREFERENCES = ['system', 'light', 'dark'] as const;
