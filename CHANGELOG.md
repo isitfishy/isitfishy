@@ -3,7 +3,7 @@
 All notable changes to this project are listed here. Versions follow
 [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [0.1.0] - 2026-11-10
 
 First public release of the source code. The scoring service stays private; this
 repository includes a stub scorer for development.
