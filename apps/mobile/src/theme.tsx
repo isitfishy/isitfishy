@@ -10,9 +10,9 @@ const light = {
   text: '#1f2328',
   muted: '#59636e',
   border: '#d1d9e0',
-  primary: '#0969da',
+  primary: '#1F5BFF',
   // Background of filled buttons under onPrimary text.
-  primaryFill: '#0969da',
+  primaryFill: '#1F5BFF',
   onPrimary: '#ffffff',
   chip: '#eef1f4',
   verdict: {
@@ -43,9 +43,9 @@ const dark: Palette = {
   text: '#e6edf3',
   muted: '#9198a1',
   border: '#30363d',
-  primary: '#2f81f7',
+  primary: '#6F95FF',
   // Background of filled buttons under onPrimary text.
-  primaryFill: '#1f6feb',
+  primaryFill: '#1F5BFF',
   onPrimary: '#ffffff',
   chip: '#21262d',
   verdict: { low: '#3fb950', medium: '#d29922', high: '#f85149', unverified: '#d29922' },

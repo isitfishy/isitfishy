@@ -6,6 +6,7 @@ import { useShareIntent } from 'expo-share-intent';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useMemo, useState } from 'react';
 import {
+  Image,
   Platform,
   Pressable,
   ScrollView,
@@ -151,7 +152,7 @@ function CheckScreen() {
         <View style={styles.topBar}>
           <View style={styles.brand}>
             <View style={styles.logo}>
-              <Ionicons name="shield-half" size={22} color={theme.onPrimary} />
+              <Image source={require('./assets/brand-mark.png')} style={styles.logoMark} accessibilityIgnoresInvertColors />
             </View>
             <Text style={styles.title}>{s.title}</Text>
           </View>
@@ -274,6 +275,7 @@ function makeStyles(c: Theme) {
       alignItems: 'center',
       justifyContent: 'center',
     },
+    logoMark: { width: 30, height: 30 },
     title: { color: c.text, fontSize: c.font(28), fontWeight: '800' },
     settingsButton: { flexDirection: 'row', alignItems: 'center', gap: 4 },
     settingsText: { color: c.muted, fontWeight: '600', fontSize: c.font(14) },
