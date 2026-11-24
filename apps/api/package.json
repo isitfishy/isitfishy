@@ -22,12 +22,12 @@
     "openapi": "pnpm run build && node dist/openapi.export ../../packages/api-client/openapi.json"
   },
   "dependencies": {
-    "@nestjs/common": "^12.4.0",
+    "@nestjs/common": "^12.6.0",
     "@nestjs/config": "^12.1.1",
-    "@nestjs/core": "^12.4.0",
-    "@nestjs/platform-express": "^12.4.0",
-    "@nestjs/swagger": "^12.1.1",
-    "@nestjs/throttler": "^6.7.1",
+    "@nestjs/core": "^12.6.0",
+    "@nestjs/platform-express": "^12.6.0",
+    "@nestjs/swagger": "^12.1.2",
+    "@nestjs/throttler": "^6.8.0",
     "@prisma/adapter-pg": "7.10.1",
     "@prisma/client": "^7.10.1",
     "class-transformer": "^0.5.1",
